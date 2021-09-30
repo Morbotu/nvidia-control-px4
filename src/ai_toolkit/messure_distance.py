@@ -15,7 +15,7 @@ class DepthCamera(AiToolkit):
         img = self.get_img(img)
         self.net.Process(img)
         jetson.utils.cudaDeviceSynchronize()
-        return self.depth_numpy, np.shape(img)
+        return self.depth_numpy, np.shape(self.depth_numpy)
 
 
 if __name__ == "__main__":
