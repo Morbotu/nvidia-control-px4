@@ -6,7 +6,7 @@ class AiToolkit:
     def __init__(self, net, camera=None):
         self.net = net
         if camera:
-            self.camera = jetson.utils.videoSource(camera)
+            self.camera = jetson.utils.videoSource(camera, argv=["--input-flip=rotate-180"])
 
     def get_img(self, img):
         if not img:

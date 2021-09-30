@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
 import jetson.inference
 import jetson.utils
-from ai_kit import AiToolkit
 import numpy as np
+from ai_kit import AiToolkit
 
 
 class DepthCamera(AiToolkit):
-    def __init__(self, net="monodepth-mobilenet", camera=None):
-        super().__init__(jetson.inference.depthNet(net), camera=camera)
+    def __init__(self, camera=None):
+        super().__init__(jetson.inference.depthNet(), camera=camera)
         self.depth_field = self.net.GetDepthField()
         self.depth_numpy = jetson.utils.cudaToNumpy(self.depth_field)
 
