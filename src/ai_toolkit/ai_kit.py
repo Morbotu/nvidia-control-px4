@@ -3,7 +3,7 @@ import jetson.utils
 
 
 class AiToolkit:
-    def __init__(self, camera):
-        self.net = None
+    def __init__(self, net, camera=None):
+        self.net = net
         if camera:
             self.camera = jetson.utils.videoSource(camera)
