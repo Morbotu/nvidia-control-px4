@@ -9,7 +9,8 @@ class DetectionCamera(AiToolkit):
     def __init__(self, net="pednet", camera=None):
         super().__init__(jetson.inference.detectNet(net, threshold=0.6), camera=camera)
 
-    def get_detection_array(self, img):
+    def get_detection_array(self, img=None):
+        img = self.get_img(img)
         detections = self.net.Detect(img)
         return detections, np.shape(img)
 
