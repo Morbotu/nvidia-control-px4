@@ -11,37 +11,29 @@ from control_px4.control_nvidia import MavLinkControl
 camera = jetson.utils.videoSource("csi://0", argv=["--input-flip=rotate-180"])
 depth_camera = DepthCamera()
 detection_camera = DetectionCamera()
-controller = MavLinkControl()
+# controller = MavLinkControl()
 
-img = camera.Capture()
-jetson.utils.saveImageRGBA("original.jpg", img, img.width, img.height)
-detections, detect_img, shape_detections = detection_camera.get_detection_array(
-    img)
-jetson.utils.saveImageRGBA("detection.jpg", detect_img,
-                           detect_img.width, detect_img.height)
+while True:
+    img = camera.Capture()
+    detections, detect_img, shape_detections = detection_camera.get_detection_array(
+        img)
 
-if len(detections) > 0:
-    depth_numpy, shape_depth = depth_camera.get_depth_array(img)
-    img = scipy.misc.toimage(depth_numpy[:, :, 0], mode="L")
-    img.save("depth.jpg")
-    proportions_row = shape_depth[0] / shape_detections[0]
-    proportions_col = shape_depth[1] / shape_detections[1]
-    print(ceil(detections[0].Top * proportions_row), floor(detections[0].Bottom * proportions_row),
-          ceil(detections[0].Left * proportions_col), floor(detections[0].Right * proportions_col))
-    print(shape_detections[0], shape_detections[1],
-          shape_depth[0], shape_depth[1])
-    detection_depth = depth_numpy[
-        ceil(detections[0].Top * proportions_row):
-        floor(detections[0].Bottom * proportions_row),
-        ceil(detections[0].Left * proportions_col):
-        floor(detections[0].Right * proportions_col),
-        0
-    ]
+    if len(detections) > 0:
+        for detection in detections:
+            depth_numpy, shape_depth = depth_camera.get_depth_array(img)
+            proportions_row = shape_depth[0] / shape_detections[0]
+            proportions_col = shape_depth[1] / shape_detections[1]
+            detection_depth = depth_numpy[
+                ceil(detection.Top * proportions_row):
+                floor(detection.Bottom * proportions_row),
+                ceil(detection.Left * proportions_col):
+                floor(detection.Right * proportions_col),
+                0
+            ]
 
-    img = scipy.misc.toimage(detection_depth, mode="L")
-    img.save("person_depth.jpg")
-
-    if (detection_depth < 2.5).sum() > detections[0].Area * .70:
-        print("Person to close")
-else:
-    print("No one found")
+            if (detection_depth < 2.5).sum() > detection.Area * proportions_col * proportions_row * .40:
+                print("Person to close")
+            else:
+                print("Person far enough")
+    else:
+        print("No one found")
