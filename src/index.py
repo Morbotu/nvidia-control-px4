@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import scipy.misc
+from math import floor, ceil
 import jetson.utils
 import paths
 from ai_toolkit.detect_person import DetectionCamera
@@ -26,13 +27,13 @@ img.save("depth.jpg")
 proportions_row = shape_depth[0] / shape_detections[0]
 proportions_col = shape_depth[1] / shape_detections[1]
 if len(detections) > 0:
-    print(int(detections[0].Top * proportions_row), int(detections[0].Bottom * proportions_row), int(detections[0].Left * proportions_col), int(detections[0].Right * proportions_col))
+    print(ceil(detections[0].Top * proportions_row), floor(detections[0].Bottom * proportions_row), ceil(detections[0].Left * proportions_col), floor(detections[0].Right * proportions_col))
     print(shape_detections[0], shape_detections[1], shape_depth[0], shape_depth[1])
     detection_depth = depth_numpy[
-        int(detections[0].Top * proportions_row):
-        int(detections[0].Bottom * proportions_row),
-        int(detections[0].Left * proportions_col):
-        int(detections[0].Right * proportions_col),
+        ceil(detections[0].Top * proportions_row):
+        floor(detections[0].Bottom * proportions_row),
+        ceil(detections[0].Left * proportions_col):
+        floor(detections[0].Right * proportions_col),
         0
     ]
 
