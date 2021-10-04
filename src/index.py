@@ -31,7 +31,7 @@ while True:
                 0
             ]
 
-            if (detection_depth < 2.5).sum() > detection.Area * proportions_col * proportions_row * .40:
+            if (detection_depth < 2.5).sum() > detection_depth.size * .99:
                 print("Person to close")
             else:
                 print("Person far enough")
