@@ -13,27 +13,36 @@ depth_camera = DepthCamera()
 detection_camera = DetectionCamera()
 # controller = MavLinkControl()
 
-while True:
-    img = camera.Capture()
-    detections, detect_img, shape_detections = detection_camera.get_detection_array(
-        img)
+# while True:
+img = camera.Capture()
+jetson.utils.saveImageRGBA("original.jpg", img, img.width, img.height)
+detections, detect_img, shape_detections = detection_camera.get_detection_array(
+    img)
+jetson.utils.saveImageRGBA("detection.jpg", detect_img,
+                           detect_img.width, detect_img.height)
 
-    if len(detections) > 0:
-        for detection in detections:
-            depth_numpy, shape_depth = depth_camera.get_depth_array(img)
-            proportions_row = shape_depth[0] / shape_detections[0]
-            proportions_col = shape_depth[1] / shape_detections[1]
-            detection_depth = depth_numpy[
-                ceil(detection.Top * proportions_row):
-                floor(detection.Bottom * proportions_row),
-                ceil(detection.Left * proportions_col):
-                floor(detection.Right * proportions_col),
-                0
-            ]
+if len(detections) > 0:
+    depth_numpy, shape_depth = depth_camera.get_depth_array(img)
+    img = scipy.misc.toimage(depth_numpy[:, :, 0], mode="L")
+    img.save("depth.jpg")
 
-            if (detection_depth < 2.5).sum() > detection_depth.size * .99:
-                print("Person to close")
-            else:
-                print("Person far enough")
-    else:
-        print("No one found")
+    proportions_row = shape_depth[0] / shape_detections[0]
+    proportions_col = shape_depth[1] / shape_detections[1]
+    for detection in detections:
+        detection_depth = depth_numpy[
+            ceil(detection.Top * proportions_row):
+            floor(detection.Bottom * proportions_row),
+            ceil(detection.Left * proportions_col):
+            floor(detection.Right * proportions_col),
+            0
+        ]
+
+        img = scipy.misc.toimage(detection_depth, mode="L")
+        img.save("person_depth.jpg")
+
+        if (detection_depth < 2.5).sum() > detection_depth.size * .99:
+            print("Person to close")
+        else:
+            print("Person far enough")
+else:
+    print("No one found")
